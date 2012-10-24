@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Remind Me</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript" src="jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="timePicker.js"></script>
+<script type="text/javascript" src="jquery.timepicker.js"></script>
+<style type="text/css">
+.blacks{
+width:100%;
+top:0px;
+height:122px;
+position:fixed;
+background: url(images/gradblack.png);
+z-index:10;
+}
+</style>
+
+</head>
+<body marginheight="0" marginwidth="0" topmargin="0" bottommargin="0">
+<script>
+// add record with random values
+	db = openDatabase("DBTest", "1.0", "HTML5 Database API example", 200000);
+	 function onError(tx, error) {
+        log.innerHTML += '<p>' + error.message + '</p>';
+      }
+      
+      function newRecord() {
+        var num = Math.round(Math.random() * 10000); // random data
+		var txtDesc = document.getElementById('desc').value;
+		var txtDay = document.getElementById('date').value;
+		var txtTime = document.getElementById('remtime').value;
+		var txtPhone = document.getElementById('phone').value;
+
+        db.transaction(function(tx) {
+          tx.executeSql("INSERT INTO Table1Test (id, text, day, time, phone, flag) VALUES (?, ?, ?, ?, ?, ?)", [num, txtDesc, txtDay, txtTime, txtPhone, '0'],
+              function(tx, result) {
+                //log.innerHTML = 'record added'; // comment to remove log display
+				storeNumbers(txtPhone, num);
+                //showRecords();
+				window.location = "index.html";
+              }, 
+              onError);
+        });
+      }
+	  
+	  function storeNumbers(phones, id){
+
+		var myString = phones, splitted = myString.split(","), i;
+		for(i = 0; i < splitted.length; i++){ // You could use the 'in' operator, too 
+			//if(splitted[i].match("123")){
+				// Do something
+				//alert(splitted[i]); // Alerts the entire contents between the original |'s 
+				// In this case, it will alert "123hhh". 
+				var numb = splitted[i];
+			//}
+			saveNumber(id, numb);
+		}	
+	}
+	
+	function saveNumber(id, num){
+		db.transaction(function(tx) {
+        tx.executeSql("INSERT INTO Table1Phone (id, phones) VALUES (?, ?)", [id, num],
+              function(tx, result) {
+                //log.innerHTML = 'record added'; // comment to remove log display
+                //showRecords();
+              }, 
+              onError);
+        });
+	}
+</script>
+<script type="text/javascript">
+		$(document).ready( function(){
+			// Hide all Modal Boxes
+			$('div.modal-box').hide();
+			// Display appropriate box on click - adjust this as required for your website
+			$('span.modal-link').click(function() {
+				var modalBox = $(this).attr('rel');
+				$('div'+modalBox).fadeIn('slow');
+			});
+			// Multiple ways to close a Modal Box
+			$('span.modal-close').click(function() {
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+			$('span.dismiss').click(function() {
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+			$('span.save').click(function() {
+				// **** If you need to save or submit information - add your appropriate ajax code here
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+		});
+	</script>
+	<div class="mainwrapper">
+<div class="blacks">
+	<div class="logo"><img src="images/logo.png" /></div>
+</div>
+	<table class="table" align="center" width="800" bgcolor="white" style="height:100%;">
+	<tr>
+	<td>
+	<img src="images/text.png" class="text" /></td></tr>
+	<tr>
+		<td>
+		<div>
+		<div>
+		<section>
+		<input id="phone" name="phone" placeholder="Hand Phone Number" type="text" class="phone" />
+		</section>
+		<section>
+			<textarea name="desc" id="desc" placeholder="Remind you of what?" cols="40" rows="8"></textarea>
+		</section>
+		<section>
+			<input type="date" id="date" name="date" placeholder="Date"/>
+			<script>
+			$(function() {
+				$('#remtime').timepicker();
+			});
+			</script>
+			<input id="remtime" name="time" placeholder="Alert Time" type="text" class="time" />
+		</section>
+		</div>
+		<input type="button" onclick="window.location='index.html';" value="Cancel"/>
+		<input type="button" onclick="newRecord();" value="Add Reminder"/>
+	</div>
+		</td>
+	</tr>
+	</table>
+</div>
+	
+</body>
+</html>

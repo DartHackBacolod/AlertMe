@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Remind Me</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript" src="jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="timePicker.js"></script>
+  <script type="text/javascript" src="jquery.timepicker.js"></script>
+</head>
+<body onload="showRecords(); showReminder(); displayNumbers();"  marginheight="0" marginwidth="0" topmargin="0" bottommargin="0">
+    <div id="content"></div>
+    <p id="log" style="color: gray"></p>
+	<script>
+     var time = new Date().getTime();
+     $(document.body).bind("mousemove keypress", function(e) {
+         time = new Date().getTime();
+     });
+
+     function refresh() {
+         if(new Date().getTime() - time >= 10000) 
+             window.location.reload(true);
+         else 
+             setTimeout(refresh, 5000);
+     }
+
+     setTimeout(refresh, 5000);
+	</script>
+    <script>
+    /* document.getElementById('content').innerHTML = 
+        '<h4>Simple to do list</h4>'+
+        //'<ul id="results"></ul><div>You can also see the database at Developer > Developer Tools > Storage</div>'+
+        '<button onclick="newRecord()">new record</button>'+
+        '<button onclick="createTable()">create table</button>' +
+        '<button onclick="dropTable()">drop table</button>';
+    */ 
+      var db;
+      var log = document.getElementById('log');
+      db = openDatabase("DBTest", "1.0", "HTML5 Database API example", 200000);
+      showRecords();
+      document.getElementById('results').addEventListener('click', function(e) { e.preventDefault(); }, false);
+      
+      function onError(tx, error) {
+        log.innerHTML += '<p>' + error.message + '</p>';
+      }
+      
+      // select all records and display them
+      function showRecords() {
+        document.getElementById('results').innerHTML = '';
+        db.transaction(function(tx) {
+          tx.executeSql("SELECT * FROM Table1Test", [], function(tx, result) {
+		  
+		  
+            for (var i = 0, item = null; i < result.rows.length; i++) {
+              item = result.rows.item(i);
+              document.getElementById('results').innerHTML += 
+                  '<li> <a href="#" onclick="deleteRecord('+item['id']+')"><img src="images/delete.png"/></a>&nbsp;<span contenteditable="true" onkeyup="updateRecord('+item['id']+', this)">'+
+                  '<b>Activity: </b>' + item['text'] + '<br/><br/> <b>Date: </b>' + item['day'] + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Time:</b>' + item['time'] + ' ' + '<img src="images/'+ item['flag']+'.png" width="25" height="25"/>' + '</span></li>';
+            }
+          });
+        });
+      }
+      
+      function createTable() {
+        db.transaction(function(tx) {
+          tx.executeSql("CREATE TABLE Table1Test (id REAL UNIQUE, text TEXT, day TEXT, time TEXT, phone TEXT, flag TEXT)", [],
+              function(tx) { //log.innerHTML = 'Table1Test created' // comment to remove log display
+					
+			  },
+              onError);
+			 
+			 tx.executeSql("CREATE TABLE Table1Phone (id TEXT, phones TEXT)", [],
+              function(tx) { //log.innerHTML = 'Table1Test created' // comment to remove log display
+					
+			  },
+              onError);
+			  
+        });
+      }
+      
+      // add record with random values
+      function newRecord() {
+        var num = Math.round(Math.random() * 10000); // random data
+		var txtDesc = document.getElementById('desc').value;
+		var txtDay = document.getElementById('date').value;
+		var txtTime = document.getElementById('remtime').value;
+		var txtPhone = document.getElementById('phone').value;
+
+        db.transaction(function(tx) {
+          tx.executeSql("INSERT INTO Table1Test (id, text, day, time, phone, flag) VALUES (?, ?, ?, ?, ?, ?)", [num, txtDesc, txtDay, txtTime, txtPhone, '0'],
+              function(tx, result) {
+                //log.innerHTML = 'record added'; // comment to remove log display
+				storeNumbers(txtPhone, num);
+                showRecords();
+				window.location = "index.html";
+              }, 
+              onError);
+        });
+      }
+      
+      function updateRecord(id, textEl) {
+        db.transaction(function(tx) {
+          tx.executeSql("UPDATE Table1Test SET text = ? WHERE id = ?", [textEl.innerHTML, id], null, onError);
+        });
+      }
+      
+      function deleteRecord(id) {
+        db.transaction(function(tx) {
+          tx.executeSql("DELETE FROM Table1Test WHERE id=?", [id],
+              function(tx, result) { showRecords() }, 
+              onError);
+        });
+      }
+      
+      // delete table from db
+      function dropTable() {
+        db.transaction(function(tx) {
+          tx.executeSql("DROP TABLE Table1Test", [],
+              function(tx) { showRecords() }, 
+              onError);
+			  
+			tx.executeSql("DROP TABLE Table1Phone", [],
+              function(tx) { showRecords() }, 
+              onError);
+        });
+      }
+	  
+	  function showReminder() {
+		var currentTime = new Date();
+		var hour = currentTime.getHours();
+		var min = currentTime.getMinutes();
+		var dd = "am";
+		var h = hour;
+		if (h >= 12) {
+			h = hour-12;
+			dd = "pm";
+		}
+		if (h == 0) {
+			h = 12;
+		}
+		
+		if(min < 10){
+			min = "" + min;
+		}
+		var currentReminder = h + ":" + min + dd;
+		
+		var curDate = currentTime.getDate();
+		var curMonth = currentTime.getMonth()+1;
+		var curYear = currentTime.getFullYear();
+		
+		var curDa = curYear + "-" + curMonth + "-" + curDate; 
+		
+        db.transaction(function(tx) {
+          tx.executeSql("SELECT * FROM Table1Test WHERE day=? AND flag=?", [curDa, '0'], function(tx, result) {
+            for (var i = 0, item = null; i < result.rows.length; i++) {
+                item = result.rows.item(i);
+				//alert(item['time'] + ' ' + currentReminder);
+				if(item['time'] == currentReminder){
+					flagRead(item['id']);
+					//alert(item['id'] + ' ' + item['text'] + ' ' + item['day'] + ' ' + item['time']);
+					
+					window.location = "PHP/index.php?message=" + item['text']+"&phone="+ item['phone'];
+				}
+            }
+          });
+        });
+      }
+	  
+	function flagRead(num){
+		db.transaction(function(tx) {
+          tx.executeSql("UPDATE Table1Test SET flag=? WHERE id=?", ['1', num], null, onError);
+        });
+		
+	}
+	function storeNumbers(phones, id){
+		
+		var myString = phones, splitted = myString.split(","), i;
+		for(i = 0; i < splitted.length; i++){ // You could use the 'in' operator, too 
+			//if(splitted[i].match("123")){
+				// Do something
+				//alert(splitted[i]); // Alerts the entire contents between the original |'s 
+				// In this case, it will alert "123hhh". 
+				var numb = splitted[i];
+			//}
+			saveNumber(id, numb);
+		}	
+	}
+	
+	function saveNumber(id, num){
+		db.transaction(function(tx) {
+        tx.executeSql("INSERT INTO Table1Phone (id, phones) VALUES (?, ?)", [id, num],
+              function(tx, result) {
+                //log.innerHTML = 'record added'; // comment to remove log display
+                //showRecords();
+              }, 
+              onError);
+        });
+	}
+	function displayNumbers(){
+		 document.getElementById('phones').innerHTML = '';
+		db.transaction(function(tx) {
+          tx.executeSql("SELECT * FROM Table1Phone", [], function(tx, result) {
+            for (var i = 0, item = null; i < result.rows.length; i++) {
+              item = result.rows.item(i);
+				 document.getElementById('phones').innerHTML += 
+                  '<li>' + item['id'] + ' ' + item['phones'] + '</li>';
+            }
+          });
+        });
+	}
+    </script>
+	<script type="text/javascript">
+		$(document).ready( function(){
+			// Hide all Modal Boxes
+			$('div.modal-box').hide();
+			// Display appropriate box on click - adjust this as required for your website
+			$('span.modal-link').click(function() {
+				var modalBox = $(this).attr('rel');
+				$('div'+modalBox).fadeIn('slow');
+			});
+			// Multiple ways to close a Modal Box
+			$('span.modal-close').click(function() {
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+			$('span.dismiss').click(function() {
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+			$('span.save').click(function() {
+				// **** If you need to save or submit information - add your appropriate ajax code here
+				$(this).parents('div.modal-box').fadeOut('slow');
+			});
+		});
+	</script>
+<div class="mainwrapper">
+<div class="black">
+	<div class="logo"><img src="images/logo.png" /></div>
+</div>
+	<table class="table" align="center" width="800" bgcolor="white">
+	<tr>
+	<td valign="top">
+	<img src="images/text.png" class="text" />
+	
+	<a rel="#adjust-settings" href="new.html" class="modal-link">
+	<img src="images/create.png" width="291" height="66" alt="" border="0" onmouseover=src="images/crhover.png" onmouseout=src="images/create.png" class="create">
+	</a>
+	</td></tr>
+	</table>
+		<table class="table" align="center" width="800" bgcolor="white" style="height:100%;"><tr>
+		<td class ="listBlock" valign="top"><br><br>
+		<ul id="results"></ul>
+		</td></tr></table>
+	
+</div>
+</body>
+</html>

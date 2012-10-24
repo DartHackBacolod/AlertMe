@@ -1,0 +1,102 @@
+html{
+	height: 100%;
+}
+body{
+margin-top: -20px;
+/* IE10 Consumer Preview */ 
+background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F1F1 100%);
+
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F1F1 100%);
+
+/* Opera */ 
+background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F1F1 100%);
+
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #F1F1F1));
+
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F1F1 100%);
+
+/* W3C Markup, IE10 Release Preview */ 
+background-image: linear-gradient(to top, #FFFFFF 0%, #F1F1F1 100%);
+}
+.table{
+/* IE10 Consumer Preview */ 
+background-image: -ms-linear-gradient(bottom, #EDEDED 0%, #F7F7F7 100%);
+
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(bottom, #EDEDED 0%, #F7F7F7 100%);
+
+/* Opera */ 
+background-image: -o-linear-gradient(bottom, #EDEDED 0%, #F7F7F7 100%);
+
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #EDEDED), color-stop(1, #F7F7F7));
+
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(bottom, #EDEDED 0%, #F7F7F7 100%);
+
+/* W3C Markup, IE10 Release Preview */ 
+background-image: linear-gradient(to top, #EDEDED 0%, #F7F7F7 100%);
+}
+.mainwrapper{
+width:100%;
+height:100%;
+position:absolute;
+
+}
+.black{
+width:100%;
+height:122px;
+position:fixed;
+background: url(../images/gradblack.png);
+z-index:10;
+} 
+.logo{
+left:10%;
+top:10%;
+position:relative;
+}
+.text{
+left:20px;
+top:140px;
+position:relative;
+}
+.create{
+float:right;
+top:24px;
+position:fixed;
+z-index:11;
+
+}
+
+.listBlock{
+	overflow-y: scroll;
+	height: 100px;
+}
+
+#results li{
+	width: 90%;
+	margin: 0;
+	list-style: none;
+	position: absolute;
+	top: 100px;
+}
+#results li, #results .triangle-isosceles {
+	position:relative;
+	padding:15px;
+	margin: 10px 0;
+	color:#000;
+	font-family:arial,helvetica,verdana;
+	font-size:16px;
+	background:#f3961c; /* default background for browsers without gradient support */
+	/* css3 */
+	background:-webkit-gradient(linear, 0 0, 0 100%, from(#f9d835), to(#f3961c));
+	background:-moz-linear-gradient(#f9d835, #f3961c);
+	background:-o-linear-gradient(#f9d835, #f3961c);
+	background:linear-gradient(#f9d835, #f3961c);
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
+}
